@@ -32,14 +32,14 @@ public partial class Freezetag : Sandbox.Game
 	/// A client has joined the server. Make them a pawn to play with
 	/// </summary>
 	public int Playercount = 0;
-	public float Timer = 100.0f;
+	public float StartRoundTime = 100.0f;
 
 	public override void ClientJoined( Client client )
 	{
 		base.ClientJoined( client );
 
 		// Create a pawn for this client to play with
-		var pawn = new Pawn();
+		var pawn = new FreezetagPlayer();
 		client.Pawn = pawn;
 		Playercount += 1;
 
@@ -76,8 +76,11 @@ public partial class Freezetag : Sandbox.Game
 
 	public override void PostLevelLoaded()
 	{
+		StartRoundTime = Time.Now + StartRoundTime;
 		MaxPlayers = short.Parse(ConsoleSystem.GetValue( "maxplayers" ));
 	}
+
+	
 
 	public override void FrameSimulate( Client cl )
 	{

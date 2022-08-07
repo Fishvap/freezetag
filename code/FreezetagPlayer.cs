@@ -27,23 +27,33 @@ public partial class FreezetagPlayer : Player
 	}
 
 	public override void Respawn() {
-		Frozen = false;
+		Controller = null;
+		if(!Tags.Has("tagger") && !Tags.Has("runner"))
+			Tags.Add("spectator");
 		// DEFINE PLAYER
-		Controller = new WalkController();
-		CameraMode = new FirstPersonCamera();
-		Animator = new StandardPlayerAnimator();
-
-		UseAnimGraph = true;
-		EnableAllCollisions = true;
-		EnableHitboxes = true;
-		EnableDrawing = true;
-		EnableHideInFirstPerson = true;
-		EnableShadowInFirstPerson = true;
-		// SET TAGS
-		Tags.Add("player");
-		SetModel( "models/citizen/citizen.vmdl" );
-		Clothing.LoadFromClient( Client );
-		Clothing.DressEntity( this );
+		if(!Tags.Has("spectator"))
+		{
+			SetModel( "models/citizen/citizen.vmdl" );
+			Controller = new WalkController();
+			CameraMode = new FirstPersonCamera();
+			Animator = new StandardPlayerAnimator();
+			UseAnimGraph = true;
+			EnableHitboxes = true;
+			EnableDrawing = true;
+			EnableHideInFirstPerson = true;
+			EnableShadowInFirstPerson = true;
+			// SET TAGS
+			Tags.Remove("Frozen");
+			
+			Clothing.LoadFromClient( Client );
+			Clothing.DressEntity( this );
+		}
+		else {
+			Controller = new NoclipController();
+			CameraMode = new FirstPersonCamera();
+			base.Respawn();
+			return;
+		}
 
 		base.Respawn();
 		SetTeam();
@@ -59,43 +69,49 @@ public partial class FreezetagPlayer : Player
 
 		if (Input.Pressed( InputButton.View))
 		{
-			if ( CameraMode is ThirdPersonCamera )
-				CameraMode = new FirstPersonCamera();
-			else
-				CameraMode = new ThirdPersonCamera();
+			if(Tags.Has("tagger")) {
+				if ( CameraMode is ThirdPersonCamera )
+					CameraMode = new FirstPersonCamera();
+				else
+					CameraMode = new ThirdPersonCamera();
+			}
 		}
 
 		base.Simulate( cl );
 		TickPlayerUse();
 
-		var TagTrace = Trace.Ray(EyePosition, EyePosition + EyeRotation.Forward*50)
+		var TagTrace = Trace.Ray(EyePosition, EyePosition + EyeRotation.Forward*100)
 			.UseHitboxes()
 			.Ignore(this)
 			.Run();
 
 		if(Input.Pressed(InputButton.PrimaryAttack))
 		{
+			if(Tags.Has("spectator"))
+				return;
 			if(TagTrace.Entity is FreezetagPlayer player)
 				{
-					var FreezeParticle = new Particles();
 					if(Tags.Has("tagger") && player.Tags.Has("runner"))
 					{
 						if(player.Tags.Has("Frozen"))
 							return;
-						player.PlaySound("player_freeze");
-						FreezeParticle = Particles.Create("particles/fire_extinguisher/extinguisher_destroy_fx_smoke.vpcf", player.EyePosition);
+						player.Tags.Add("Frozen");
 						player.Controller = null;
-						player.Tags.Add("frozen");
+						player.PlaySound("player_freeze");
+						Particles.Create("particles/fire_extinguisher/extinguisher_destroy_fx_smoke.vpcf", player.EyePosition);
+						Freezetag.FrozenPlayers += 1;
+						SetTeam();
 					}
-					if(Tags.Has("runner") && player.Tags.Has("runner"))
+					if(Tags.Has("runner") && player.Tags.Has("runner") && !Tags.Has("Frozen"))
 					{
 						if(!player.Tags.Has("Frozen"))
 							return;
 						player.PlaySound("player_thaw");
 						Particles.Create("particles/impact.glass.vpcf", player.EyePosition);
-						FreezeParticle.Destroy(true);
 						player.Controller = new WalkController();
+						Freezetag.FrozenPlayers -= 1;
 						player.Tags.Remove("frozen");
+						player.SetTeam();
 					}
 				}
 		}
@@ -108,7 +124,6 @@ public partial class FreezetagPlayer : Player
 		ent.Rotation = Rotation;
 		ent.Scale = Scale;
 		ent.UsePhysicsCollision = true;
-		ent.EnableAllCollisions = true;
 		ent.SetModel( GetModelName() );
 		ent.CopyBonesFrom( this );
 		ent.CopyBodyGroups( this );
@@ -140,12 +155,16 @@ public partial class FreezetagPlayer : Player
 
 	public override void OnKilled()
 	{
+		if(Tags.Has("spectator"))
+			return;
 		base.OnKilled();
 		BecomeRagdollOnClient( Velocity );
 		PlaySound("player_death");
-
+		if(Tags.Has("runner")) {
+			Tags.Clear();
+			Tags.Add("spectator");
+		}
 		Controller = null;
-		EnableAllCollisions = false;
 		EnableDrawing = false;
 
 		CameraMode = new SpectateRagdollCamera();

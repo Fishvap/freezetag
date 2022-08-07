@@ -17,4 +17,11 @@ class Commands
         ConsoleSystem.Caller.Pawn.Tags.Add("tagger");
         ConsoleSystem.Caller.Pawn.Tags.Remove("runner");
     }
+
+    [ConCmd.Server( "roundlength" )]
+    public static void SetRoundLength( string Time )
+    {
+        float RoundTime = Time.ToFloat();
+        Freezetag.RoundTimerLength = RoundTime;
+    }
 }

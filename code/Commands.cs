@@ -2,6 +2,7 @@ using Sandbox;
 
 namespace Freezetag
 {
+<<<<<<< Updated upstream
     class Commands
     {
         [ConCmd.Server( "setteam" )]
@@ -40,6 +41,41 @@ namespace Freezetag
                 }
             }
         Log.Info( "Your team was set to: " + teamname );
+=======
+    public partial class Freezetag
+    {
+        [ConCmd.Server("team")]
+        public static void SetTeam( string arg )
+        {
+            if ( ConsoleSystem.Caller.Pawn is not BasePlayer player )
+                return;
+
+            arg = arg.ToUpper().Trim();
+
+            switch(arg)
+            {
+                case "RUNNER":
+                    player.CurrentTeam = BasePlayer.TagTeamEnum.Runner;
+                    break;
+                case "TAGGER":
+                    player.CurrentTeam = BasePlayer.TagTeamEnum.Tagger;
+                    break;
+                case "SPECTATOR" :
+                    player.CurrentTeam = BasePlayer.TagTeamEnum.Spectator;
+                    break;
+                default:
+                    Log.Info( $"Failed to set your team to {arg}" );
+                    return;
+            }
+            Log.Info( $"Your team was set to {arg}" );
+            player.Respawn();
+        }
+
+        [ConCmd.Admin("debugmode")]
+        public static void DebugCMD()
+        {
+            Debug = !Debug;
+>>>>>>> Stashed changes
         }
     }
 }

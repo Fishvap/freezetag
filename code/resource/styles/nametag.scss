@@ -2,46 +2,32 @@ NameTag
 {
 	justify-content: center;
 	align-items: center;
-
-	/*.background
-	{
-		background-color: rgba(0, 0, 0, 0.5);
-		//backdrop-filter: blur(50px);
-		width: 1000px;
-		height: 60px;
-	}
-	
-	.avatar
-	{
-		width: 48px;
-		height: 48px;
-		margin-right: 8px;
-		border-radius: 100%;
-		background-size: cover;
-
-		background-color: rgba(0, 0, 0, 0.5);
-		backdrop-filter: blur(50px);
-	}*/
+	//mix-blend-mode: lighten;
 
 	.title
 	{
 		font-family: Poppins;
-		font-weight: 600;
-		font-size: 36px;
+		font-size: 40px;
+        font-weight: 650;
 		white-space: nowrap;
 		color: rgb(255, 255, 255);
-		// mix-blend-mode: lighten;
-
+		background-color: rgba(0, 0, 0, 0.7);
+		border-radius: 40%;
 		padding: 6px;
-		padding-left: 25px;
-		padding-right: 25px;
-		border-radius: 100%;
-		background-color: rgba(0, 0, 0, 0.5);
-		backdrop-filter: blur(50px);
+		padding-left: 28px;
+		padding-right: 28px;
+		backdrop-filter: blur(20px);
+		//mix-blend-mode: lighten;
+        
+	}
 
-        opacity: 1;
-        flex-shrink: 0;
-        flex-grow: 0;
-        position: relative;
+	.avatar
+	{
+        background-color: rgba(0, 0, 0, 0.7);
+		width: 64px;
+		height: 64px;
+		margin-right: 10px;
+		border-radius: 100%;
+		background-size: cover;
 	}
 }

@@ -1,13 +1,6 @@
-using Sandbox;
 using Sandbox.UI;
 
-<<<<<<< Updated upstream
 namespace Freezetag
-=======
-namespace Freezetag;
-
-public partial class HUD : HudEntity<RootPanel>
->>>>>>> Stashed changes
 {
     public partial class HUD : HudEntity<RootPanel>
     {

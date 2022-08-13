@@ -1,5 +1,5 @@
 {
-  "Title": "",
+  "Title": "Freezetag",
   "Type": "game",
   "Org": "partygame",
   "Ident": "freezetag",
@@ -11,7 +11,7 @@
   "CodePath": "/code/",
   "RootNamespace": null,
   "Metadata": {
-    "MaxPlayers": 128,
+    "MaxPlayers": 64,
     "MinPlayers": 1,
     "GameNetworkType": "Multiplayer",
     "MapSelect": "Unrestricted",
@@ -29,7 +29,8 @@
         "trigger": "Trigger",
         "ladder": "Ignore",
         "water": "Trigger",
-        "player": "Collide"
+        "runner": "Ignore",
+        "tagger": "Collide"
       },
       "Pairs": [
         {
@@ -58,8 +59,18 @@
           "r": "Collide"
         },
         {
-          "a": "player",
-          "b": "player",
+          "a": "runner",
+          "b": "tagger",
+          "r": "Ignore"
+        },
+        {
+          "a": "tagger",
+          "b": "tagger",
+          "r": "Collide"
+        },
+        {
+          "a": "runner",
+          "b": "runner",
           "r": "Ignore"
         }
       ]

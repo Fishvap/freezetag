@@ -1,0 +1,47 @@
+$yellow: #ff0;
+$orange: #f70;
+
+.top-middle
+{
+    top: 32px;
+    width: 100%;
+    flex-direction: column;
+    align-items: center;
+
+    gamehud
+    {
+        font-family: Roboto;
+        font-size: 20px;
+        flex-direction: column;
+        justify-content: center;
+
+        .game-state
+        {
+            font-size: 12px;
+            font-weight: 400;
+            text-transform: uppercase;
+        }
+
+        .game-timer
+        {
+            font-size: 32px;
+        }
+    }
+}
+
+
+gamehud
+{
+    background-color: rgba( #fa0, 0.06 );
+    padding: 16px;
+    margin: 5px;
+    font-size: 32px;
+    font-weight: bolder;
+    color: #ff0;
+    text-shadow: 0px 0px 10px $orange;
+    min-width: 130px;
+    text-align: center;
+    align-items: center;
+    border: 1px solid rgba( #fa0, 0.08 );
+    border-radius: 3px;
+}

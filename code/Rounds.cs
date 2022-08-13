@@ -9,13 +9,7 @@ namespace Freezetag
         [Net] public static int FrozenPlayers {get;set;} = 0;
         public static float PreroundTimer {get;set;} = 10.0f;
         public int MaxPlayers = short.Parse(ConsoleSystem.GetValue( "maxplayers" ));
-        public int Playercount = 0;
-        public float PlayerTagging = 0.0f;
         public double TaggerNumber = Math.Ceiling(Client.All.Count / 4.0f);
-        public int HasBeenTagged = 0;
-        public int SkipTag = 0;
-        public int NumberOfTaggers = 0;
-
         public enum GameStates {
             Preround,
             Round,
@@ -35,50 +29,13 @@ namespace Freezetag
 
         public virtual void StartRound()
         {
-            SkipTag = HasBeenTagged;
-            NumberOfTaggers = (int)TaggerNumber;
-            NumberOfRunners = Client.All.Count - NumberOfTaggers - 1;
             TaggerNumber = Math.Ceiling(Client.All.Count / 4.0f);
             foreach ( var client in Client.All )
             {
                 if ( client.Pawn is not FreezeBasePlayer pawn )
                 continue;
-                pawn.Tags.Clear();
-                if(HasBeenTagged == 0)
-                {
-                    if(TaggerNumber > 0)
-                    {
-                        Log.Info(HasBeenTagged);
-                        TaggerNumber -= 1;
-                        pawn.Tags.Add("tagger");
-                        Log.Info("Assigned a tagger!");
-                    }
-                    else
-                    {
-                        pawn.Tags.Add("runner");
-                        Log.Info("Assigned a runner!");
-                        if(HasBeenTagged > 0) {
-                            HasBeenTagged = HasBeenTagged - 1;
-                        }
-                    }
-                }
-                else
-                {
-                    pawn.Tags.Add("runner");
-                    Log.Info("Assigned a runner!");
-                    if(HasBeenTagged > 0) {
-                        HasBeenTagged = HasBeenTagged - 1;
-                        }
-                }
                 pawn.Respawn();
             }
-            HasBeenTagged = SkipTag + 1;
-            SkipTag = HasBeenTagged;
-            if(SkipTag >= Client.All.Count)
-                SkipTag = 0;
-            if(HasBeenTagged >= Client.All.Count)
-                HasBeenTagged = 0;
-            
         }
 
         public virtual void EndRound()

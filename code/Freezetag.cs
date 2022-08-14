@@ -15,6 +15,8 @@ namespace Freezetag
 			Log.Debug("Game created, round started");
 			if(IsServer)
 				_ = new HUD();
+
+				_ = GameLoopAsync();
 		}
 
 		/// <summary>
@@ -30,7 +32,7 @@ namespace Freezetag
 
 			// Get all of the spawnpoints
 			var spawnpoints = Entity.All.OfType<SpawnPoint>();
-
+ 
 			// chose a random one
 			var randomSpawnPoint = spawnpoints.OrderBy( x => Guid.NewGuid() ).FirstOrDefault();
 

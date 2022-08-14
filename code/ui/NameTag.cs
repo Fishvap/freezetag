@@ -49,6 +49,7 @@ namespace Freezetag
                 var shouldRemove = player.Position.Distance( CurrentView.Position ) > 500;
                 shouldRemove = shouldRemove || player.LifeState != LifeState.Alive;
                 shouldRemove = shouldRemove || player.IsDormant;
+                shouldRemove = shouldRemove || player.CurrentTeam == FreezeBasePlayer.TeamEnum.Spectator;
 
                 if ( shouldRemove )
                 {

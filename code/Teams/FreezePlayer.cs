@@ -5,6 +5,7 @@ namespace Freezetag
         public bool IsFrozen = false;
         Vector3 PreviousPosition = new();
         public Glow glow;
+        public bool TaggerCanFreezeRunner = false;
 
         public void SetupRound()
         {
@@ -29,12 +30,12 @@ namespace Freezetag
 
             ResetInterpolation();
         }
-
+  
         public void SetupTagger()
         {
+            CurrentTeam = TeamEnum.Tagger;
+            
             SetupRound();
-            Tags.Add("tagger");
-            glow.Color = Color.Red;
             CameraMode = new ThirdPersonCamera();
             Animator = new StandardPlayerAnimator();
             Controller = new WalkController();
@@ -42,13 +43,15 @@ namespace Freezetag
             (Controller as WalkController).SprintSpeed = 450.0f;
             (Controller as WalkController).DefaultSpeed = 300.0f;
             (Controller as WalkController).Gravity = 600.0f;
+            Tags.Add("tagger");
+            glow.Color = Color.Red;
         }
 
         public void SetupRunner()
         {
+            CurrentTeam = TeamEnum.Runner;
+
             SetupRound();
-            Tags.Add("runner");
-            glow.Color = Color.Cyan;
             CameraMode = new FirstPersonCamera();
             Animator = new StandardPlayerAnimator();
             Controller = new WalkController();
@@ -56,20 +59,24 @@ namespace Freezetag
             (Controller as WalkController).SprintSpeed = 400.0f;
             (Controller as WalkController).DefaultSpeed = 250.0f;
             (Controller as WalkController).Gravity = 500.0f;
+            Tags.Add("runner");
+            glow.Color = Color.Cyan;
         }
         
         public void SetupSpectator()
         {
+            CurrentTeam = TeamEnum.Spectator;
+            
             IsFrozen = false;
             SetModel( null );
             Tags.Clear();
-            Tags.Add("spectator");
             
             EnableAllCollisions = false;
             EnableDrawing = false;
 
             CameraMode = new FirstPersonCamera();
             Controller = new NoclipController();
+            Tags.Add("spectator");
         }
 
         public void Freeze( FreezeBasePlayer player )
@@ -106,7 +113,7 @@ namespace Freezetag
                 if(Tags.Has("tagger"))
                     DebugOverlay.Sphere(PosLerp.LerpTo(Position + Vector3.Up * 40.0f, 1.0f - LerpPosition.Length), 15f, Color.Red);
                 if(Tags.Has("runner"))
-                    DebugOverlay.Sphere(PosLerp.LerpTo(Position + Vector3.Up * 40.0f, 1.0f - LerpPosition.Length), 15f, Color.Cyan);
+                    DebugOverlay.Sphere(PosLerp.LerpTo(Position + Vector3.Up * 40.0f, 1.0f - LerpPosition.Length), 15f, Color.Cyan); fishvap do be gay
             }*/
 
             PreviousPosition = Position;
@@ -117,15 +124,15 @@ namespace Freezetag
                     break;
                 if(ent is not FreezeBasePlayer player)
                     break;
-                if(Tags.Has("tagger") && player.Tags.Has("runner"))
+                if(CurrentTeam == TeamEnum.Tagger && player.CurrentTeam == TeamEnum.Runner)
                 {
-                    if(player.IsFrozen == false)
+                    if(player.IsFrozen == false && TaggerCanFreezeRunner == true)
                     {
                         Log.Info( $"{Client.Name} froze {player.Client.Name}" );
                         Freeze( player );
                     }
                 }
-                if(Tags.Has("runner") && player.Tags.Has("runner"))
+                if(CurrentTeam == TeamEnum.Runner && player.CurrentTeam == TeamEnum.Runner)
                 {
                     if(player.IsFrozen == true && IsFrozen == false)
                     {

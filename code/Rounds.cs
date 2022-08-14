@@ -1,3 +1,5 @@
+using System.Linq;
+
 namespace Freezetag
 {
     public partial class Freezetag
@@ -9,7 +11,8 @@ namespace Freezetag
         [Net] public static int FrozenPlayers {get;set;} = 0;
         public static float PreroundTimer {get;set;} = 10.0f;
         public int MaxPlayers = short.Parse(ConsoleSystem.GetValue( "maxplayers" ));
-        public double TaggerNumber = Math.Ceiling(Client.All.Count / 4.0f);
+        public double TaggerNumber = (int)Math.Ceiling(Client.All.Count / 4.0f);
+
         public enum GameStates {
             Preround,
             Round,
@@ -28,13 +31,21 @@ namespace Freezetag
         }
 
         public virtual void StartRound()
-        {
+        {   
             TaggerNumber = Math.Ceiling(Client.All.Count / 4.0f);
-            foreach ( var client in Client.All )
+            var players = Entity.All.OfType<FreezeBasePlayer>().OrderBy(p => Rand.Int(9999)).ToList();
+            var givens = 0;
+
+            for ( var i = 0; i < players.Count; i++ )
             {
-                if ( client.Pawn is not FreezeBasePlayer pawn )
-                continue;
-                pawn.Respawn();
+                var freezePlayer = players[i];
+
+                if (givens < TaggerNumber) {
+                    freezePlayer.SetupTagger();
+                    givens++;
+                    continue;
+                }
+                freezePlayer.SetupRunner();
             }
         }
 
@@ -44,11 +55,8 @@ namespace Freezetag
             {
                 if ( client.Pawn is not FreezeBasePlayer pawn )
                 continue;
-                pawn.Tags.Clear();
-                pawn.Tags.Add("spectator");
-                Log.Info("Removed tags!");
+                pawn.SetupSpectator();
             }
-            FrozenPlayers = 0;
         }
 
         public async Task GameStateTimer()
@@ -56,40 +64,39 @@ namespace Freezetag
             do
             {
                 await Task.DelayRealtimeSeconds(1.0f);
-                if(GameState == GameStates.Round && FrozenPlayers == NumberOfRunners)
+                /*if(GameState == GameStates.Round && FrozenPlayers == NumberOfRunners)
                 {
                     StateTimer = 0.0f;
                     FrozenPlayers = 0;
-                }
-            } while(StateTimer > 0);
+                }*/
+            } while( StateTimer > 0 );
         }
 
         public async Task GameLoopAsync()
         {
-            if(Client.All.Count > 1)
+            GameState = GameStates.Preround;
+            StateTimer = PreroundTimer;
+            await GameStateTimer();
+            PreroundTimer = 5.0f;
+
+            GameState = GameStates.Round;
+            StartRound();
+            var players = Client.All.Select( c => c.Pawn as FreezeBasePlayer );
+            foreach ( var player in players )
             {
-                GameState = GameStates.Preround;
-                StateTimer = PreroundTimer;
-                await GameStateTimer();
-                PreroundTimer = 3.0f;
-
-                GameState = GameStates.Round;
-                StartRound();
-                var players = Client.All.Select( c => c.Pawn as FreezeBasePlayer );
-                foreach ( var player in players )
-                {
+                if(IsServer)
+                    player.IsFrozen = false;
                     player.Respawn();
-                }
-                StateTimer = RoundTimerLength;
-                await GameStateTimer();
-
-                GameState = GameStates.Endround;
-                StateTimer = 3.0f;
-                EndRound();
-                Log.Info("End Round");
-                await GameStateTimer();
-                await GameLoopAsync();
             }
+            StateTimer = RoundTimerLength;
+            await GameStateTimer();
+
+            GameState = GameStates.Endround;
+            StateTimer = 5.0f;
+            EndRound();
+            Log.Info("End Round");
+            await GameStateTimer();
+            await GameLoopAsync();
         }
     }
 }

@@ -63,7 +63,7 @@ namespace Freezetag {
                 }
             }
 
-            Corpse = ent;
+            Corpse = ent; // fishvap do be gay
 
             ent.DeleteAsync( 10.0f );
         }

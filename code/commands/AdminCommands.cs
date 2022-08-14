@@ -12,20 +12,19 @@ namespace Freezetag
             var client = ConsoleSystem.Caller;
             if( client.Pawn is not FreezeBasePlayer player )
                 return;
+            client.Pawn.DeleteAsync(25.0f);
+
             Str = Str.ToUpper();
             try {
                 switch( Str )
                 {
                     case "SPECTATOR":
-                        player.CurrentTeam = FreezeBasePlayer.TeamEnum.Spectator;
                         player.SetupSpectator();
                         break;
                     case "RUNNER":
-                        player.CurrentTeam = FreezeBasePlayer.TeamEnum.Runner;
                         player.SetupRunner();
                         break;
                     case "TAGGER":
-                        player.CurrentTeam = FreezeBasePlayer.TeamEnum.Tagger;
                         player.SetupTagger();
                         break;
                     default:
